@@ -17,7 +17,7 @@ return new class extends Migration
             }
 
             if (! Schema::hasColumn('users', 'status')) {
-                $table->string('status')->default('active')->after('mobile');
+                $table->boolean('status')->default(true)->after('mobile');
             }
         });
     }

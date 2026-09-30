@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BookingRequest;
 use App\Models\Booking;
 use App\Models\Seat;
 use App\Models\Student;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
     // 1. List all bookings
-    public function index(Request $request)
+    public function index(BookingRequest $request)
     {
         // 1. Start query on Booking model with student and seat relations
         $query = Booking::with(['student', 'seat']);
@@ -38,15 +38,9 @@ class BookingController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(BookingRequest $request)
     {
         try {
-            $request->validate([
-                'student_id' => 'required|integer',
-                'seat_id' => 'required|integer',
-                'booking_date' => 'required|date_format:Y-m-d',
-                'slot' => 'required|in:06:00-09:00,09:00-12:00,12:00-15:00,15:00-18:00,18:00-21:00',
-            ]);
 
             // 1. Date cannot be in the past
             if (Carbon::parse($request->booking_date)->isPast() && ! Carbon::parse($request->booking_date)->isToday()) {
@@ -56,7 +50,7 @@ class BookingController extends Controller
 
             // 2. Student exists and is active
             $student = Student::find($request->student_id);
-            if (! $student || $student->status !== 'active') {
+            if (! $student || ! $student->status) {
                 return response()->json(['status' => 'error',
                     'message' => 'Student does not exist or is inactive']);
             }

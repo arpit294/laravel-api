@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeatRequest;
 use App\Models\Booking;
 use App\Models\Seat;
 use Exception;
-use Illuminate\Http\Request;
 
 class SeatController extends Controller
 {
@@ -20,12 +20,9 @@ class SeatController extends Controller
     }
 
     // 2. Create a new seat
-    public function store(Request $request)
+    public function store(SeatRequest $request)
     {
         try {
-            $request->validate([
-                'seat_number' => 'required|string|unique:seats,seat_number',
-            ]);
 
             $seat = new Seat;
             $seat->seat_number = strtoupper($request->seat_number);
@@ -97,13 +94,8 @@ class SeatController extends Controller
     }
 
     // 5. Seat Availability API
-    public function availableSeats(Request $request)
+    public function availableSeats(SeatRequest $request)
     {
-        $request->validate([
-            'date' => 'required|date_format:Y-m-d',
-            'slot' => 'required|in:06:00-09:00,09:00-12:00,12:00-15:00,15:00-18:00,18:00-21:00',
-        ]);
-
         $date = $request->date;
         $slot = $request->slot;
 

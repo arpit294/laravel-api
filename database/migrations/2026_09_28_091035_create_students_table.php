@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('mobile')->unique();
             $table->string('email')->unique();
-            $table->string('status')->default('active'); // 'active' or 'inactive'
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

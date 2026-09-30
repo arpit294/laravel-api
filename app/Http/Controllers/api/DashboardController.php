@@ -3,18 +3,14 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DashboardRequest;
 use App\Models\Booking;
 use App\Models\Seat;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index(DashboardRequest $request)
     {
-        $request->validate([
-            'date' => 'sometimes|date_format:Y-m-d',
-        ]);
-
         $date = $request->input('date', now()->toDateString());
         $activeSeats = Seat::where('status', 'active')->count();
 

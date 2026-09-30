@@ -16,6 +16,10 @@ class Student extends Model
         'status',
     ];
 
+    protected $casts = [
+        'status' => 'boolean',
+    ];
+
     // A student can have multiple bookings
     public function bookings()
     {
