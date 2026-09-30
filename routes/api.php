@@ -6,7 +6,9 @@ use App\Http\Controllers\api\SeatController;
 use App\Http\Controllers\api\StudentController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
+$baseUrl = 'v1';
+
+Route::prefix($baseUrl)->group(function () {
     // Student Routes
     Route::apiResource('students', StudentController::class);
 
