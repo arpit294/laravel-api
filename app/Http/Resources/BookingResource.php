@@ -14,6 +14,13 @@ class BookingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'student_id' => $this->student_id,
+            'seat_id' => $this->seat_id,
+            'booking_date' => $this->booking_date,
+            'slot' => $this->slot,
+            'status' => $this->status,
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
+use App\Http\Resources\StudentResource;
 use App\Models\Student;
 use App\Models\User;
 use Exception;
@@ -52,7 +53,7 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student Registered Successfully',
-                'data' => $student,
+                'data' => new StudentResource($student),
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -78,7 +79,7 @@ class StudentController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $student,
+            'data' => new StudentResource($student),
         ]);
     }
 
@@ -101,7 +102,7 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student Updated Successfully',
-                'data' => $student,
+                'data' => new StudentResource($student),
             ]);
         } catch (Exception) {
             return response()->json([
@@ -128,7 +129,7 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student Deactivated Successfully',
-                'data' => $student,
+                'data' => new StudentResource($student),
             ]);
         } catch (Exception) {
             return response()->json([
@@ -154,7 +155,7 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student activated Successfully',
-                'data' => $student,
+                'data' => new StudentResource($student),
             ]);
         } catch (Exception) {
             return response()->json([

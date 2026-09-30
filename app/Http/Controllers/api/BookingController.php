@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingRequest;
+use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Seat;
 use App\Models\Student;
@@ -34,7 +35,7 @@ class BookingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'bookings' => $bookings,
+            'bookings' => new BookingResource($bookings),
         ]);
     }
 
@@ -100,7 +101,7 @@ class BookingController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Seat Booked Successfully',
-                    'data' => $booking,
+                    'data' => new BookingResource($booking),
                 ]);
             });
         } catch (Exception) {
@@ -128,7 +129,7 @@ class BookingController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Booking cancelled successfully',
-                'data' => $booking,
+                'data' => new BookingResource($booking),
             ]);
         } catch (Exception) {
             return response()->json([

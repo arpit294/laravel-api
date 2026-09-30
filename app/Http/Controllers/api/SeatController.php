@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SeatRequest;
+use App\Http\Resources\SeatResource;
 use App\Models\Booking;
 use App\Models\Seat;
 use Exception;
@@ -32,7 +33,7 @@ class SeatController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Seat Created Successfully',
-                'data' => $seat,
+                'data' => new SeatResource($seat),
             ]);
         } catch (Exception) {
             return response()->json([
@@ -59,7 +60,7 @@ class SeatController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $seat,
+            'data' => new SeatResource($seat),
         ]);
     }
 
@@ -82,7 +83,7 @@ class SeatController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => "Seat status updated to {$seat->status}",
-                'data' => $seat,
+                'data' => new SeatResource($seat),
             ]);
         } catch (Exception) {
             return response()->json([
