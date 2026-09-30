@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Seat;
 use App\Models\Student;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -38,6 +39,7 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+        try{
         $request->validate([
             'student_id' => 'required|integer',
             'seat_id' => 'required|integer',
@@ -106,11 +108,19 @@ class BookingController extends Controller
                 'data' => $booking,
             ]);
         });
+        }catch(Exception){
+              return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to store booking.',
+                'data' => null,
+            ]);
+        }
     }
 
     // Cancel Booking (do not delete, update status)
     public function cancel($id)
     {
+        try{
         $booking = Booking::find($id);
 
         if (! $booking) {
@@ -125,5 +135,12 @@ class BookingController extends Controller
             'message' => 'Booking cancelled successfully',
             'data' => $booking,
         ]);
+        }catch(Exception){
+              return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to cancle booking.',
+                'data' => null,
+            ]);
+        }
     }
 }

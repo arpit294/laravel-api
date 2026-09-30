@@ -53,6 +53,4 @@ Route::get('library/dashboard', [DashboardController::class, 'index']);
 // 18	Cancel Booking	POST	http://127.0.0.1:8000/api/bookings/1/cancel	None
 // 12	Check Seat Availability	GET	http://127.0.0.1:8000/api/seats/available?date=2026-09-29&slot=06:00-09:00	None
 
-
-
 // 19	View Library Dashboard	GET	http://127.0.0.1:8000/api/library/dashboard	None

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Seat;
+use Exception;
 use Illuminate\Http\Request;
 
 class SeatController extends Controller
@@ -20,20 +21,30 @@ class SeatController extends Controller
     // 2. Create a new seat
     public function store(Request $request)
     {
-        $request->validate([
-            'seat_number' => 'required|string|unique:seats,seat_number',
-        ]);
+        try {
+            $request->validate([
+                'seat_number' => 'required|string|unique:seats,seat_number',
+            ]);
 
-        $seat = new Seat;
-        $seat->seat_number = strtoupper($request->seat_number);
-        $seat->status = 'active';
-        $seat->save();
+            $seat = new Seat;
+            $seat->seat_number = strtoupper($request->seat_number);
+            $seat->status = 'active';
+            $seat->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Seat Created Successfully',
-            'data' => $seat,
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Seat Created Successfully',
+                'data' => $seat,
+            ]);
+        } catch (Exception) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create seat.',
+                'data' => null,
+            ]);
+
+        }
+
     }
 
     // 3. View a single seat
@@ -57,6 +68,7 @@ class SeatController extends Controller
     // 4. Activate / Deactivate a seat
     public function toggleStatus($id)
     {
+        try{
         $seat = Seat::find($id);
 
         if (! $seat) {
@@ -74,9 +86,16 @@ class SeatController extends Controller
             'message' => "Seat status updated to {$seat->status}",
             'data' => $seat,
         ]);
+        } catch(Exception){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update seat.',
+                'data' => null,
+            ]);
+        }
     }
 
-    // 5. Seat Availability API (GET /api/seats/available?date=2026-09-28&slot=06:00-09:00)
+    // 5. Seat Availability API
     public function availableSeats(Request $request)
     {
         $request->validate([
