@@ -10,7 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
+        'user_id',
         'seat_id',
         'booking_date',
         'slot',
@@ -26,10 +26,10 @@ class Booking extends Model
         '18:00-21:00',
     ];
 
-    // Booking belongs to a Student
-    public function student()
+    // Booking belongs to a User
+    public function user()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // Booking belongs to a Seat

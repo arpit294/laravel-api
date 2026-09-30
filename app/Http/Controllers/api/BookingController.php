@@ -8,7 +8,7 @@ use App\Http\Requests\BookingRequest;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Seat;
-use App\Models\Student;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +18,8 @@ class BookingController extends Controller
     // 1. List all bookings
     public function index(BookingRequest $request)
     {
-        // 1. Start query on Booking model with student and seat relations
-        $query = Booking::with(['student', 'seat']);
+        // 1. Start query on Booking model with user and seat relations
+        $query = Booking::with(['user', 'seat']);
 
         // 2. Filter by date
         if ($request->has('date')) {
@@ -47,8 +47,8 @@ class BookingController extends Controller
             }
 
             // 2. Student exists and is active
-            $student = Student::find($request->student_id);
-            if (! $student || ! $student->status) {
+            $user = User::find($request->user_id);
+            if (! $user || ! $user->status) {
                 return reply::errorWith(null, 'Student does not exist or is inactive');
             }
 
@@ -70,7 +70,7 @@ class BookingController extends Controller
             }
 
             // 5. Check if student already has a booking for this date and slot
-            $studentBooked = Booking::where('student_id', $request->student_id)
+            $studentBooked = Booking::where('user_id', $request->user_id)
                 ->where('booking_date', $request->booking_date)
                 ->where('slot', $request->slot)
                 ->where('status', '!=', 'cancelled')
@@ -82,7 +82,7 @@ class BookingController extends Controller
 
             return DB::transaction(function () use ($request) {
                 $booking = new Booking;
-                $booking->student_id = $request->student_id;
+                $booking->user_id = $request->user_id;
                 $booking->seat_id = $request->seat_id;
                 $booking->booking_date = $request->booking_date;
                 $booking->slot = $request->slot;

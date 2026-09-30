@@ -15,20 +15,17 @@ class BookingRequest extends FormRequest
     {
         if ($this->isMethod('post')) {
             return [
-                'student_id' => ['required', 'integer', 'exists:students,id'],
+                'user_id' => ['required', 'integer', 'exists:users,id'],
                 'seat_id' => ['required', 'integer', 'exists:seats,id'],
                 'booking_date' => ['required', 'date_format:Y-m-d'],
                 'slot' => ['required', 'in:06:00-09:00,09:00-12:00,12:00-15:00,15:00-18:00,18:00-21:00'],
             ];
         } else {
             return [
-                'student_id' => ['required', 'integer', 'exists:students,id'],
-                'seat_id' => ['required', 'integer', 'exists:seats,id'],
-                'booking_date' => ['sometimes', 'date_format:Y-m-d'],
+                'date' => ['sometimes', 'date_format:Y-m-d'],
                 'slot' => ['sometimes', 'in:06:00-09:00,09:00-12:00,12:00-15:00,15:00-18:00,18:00-21:00'],
             ];
         }
-
 
         return [];
     }

@@ -6,7 +6,6 @@ use App\Helpers\reply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Http\Resources\StudentResource;
-use App\Models\Student;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +15,7 @@ class StudentController extends Controller
     // List students
     public function index()
     {
-        return reply::successWith(Student::all(), 'Students fetched successfully');
+        return reply::successWith(StudentResource::collection(User::all()), 'Students fetched successfully');
     }
 
     // Register a student
@@ -25,30 +24,16 @@ class StudentController extends Controller
         try {
 
             $student = DB::transaction(function () use ($request) {
-                $student = Student::create([
+                return User::create([
                     'name' => $request->name,
                     'mobile' => $request->mobile,
                     'email' => $request->email,
                     'status' => true,
+                    'password' => $request->password ?? 'Student@123',
                 ]);
-
-                $user = User::updateOrCreate(
-                    ['email' => $request->email],
-                    [
-                        'name' => $request->name,
-                        'mobile' => $request->mobile,
-                        'status' => true,
-                        'password' => bcrypt($request->password ?? 'Student@123'),
-                    ]
-                );
-
-                return [
-                    'student' => $student,
-                    'user' => $user,
-                ];
             });
 
-            return reply::successWith($student, 'Student Registered Successfully');
+            return reply::successWith(new StudentResource($student), 'Student Registered Successfully');
 
         } catch (Exception $e) {
             return reply::errorWith(['error' => $e->getMessage()], 'Failed to register student.');
@@ -58,7 +43,7 @@ class StudentController extends Controller
     // View single studen
     public function show($id)
     {
-        $student = Student::find($id);
+        $student = User::find($id);
 
         if (! $student) {
             return reply::errorWith(null, 'Student not found', 404);
@@ -71,7 +56,7 @@ class StudentController extends Controller
     public function update(StudentRequest $request, $id)
     {
         try {
-            $student = Student::find($id);
+            $student = User::find($id);
 
             if (! $student) {
                 return reply::errorWith(null, 'Student not found', 404);
@@ -93,7 +78,7 @@ class StudentController extends Controller
     public function deactivate($id)
     {
         try {
-            $student = Student::find($id);
+            $student = User::find($id);
 
             if (! $student) {
                 return reply::errorWith(null, 'Student not found', 404);
@@ -111,7 +96,7 @@ class StudentController extends Controller
     public function activate($id)
     {
         try {
-            $student = Student::find($id);
+            $student = User::find($id);
 
             if (! $student) {
                 return reply::errorWith(null, 'Student not found', 404);
@@ -129,7 +114,7 @@ class StudentController extends Controller
     // Student booking history
     public function bookingHistory($id)
     {
-        $student = Student::with('bookings.seat')->find($id);
+        $student = User::with('bookings.seat')->find($id);
 
         if (! $student) {
             return reply::errorWith(null, 'Student not found', 404);
