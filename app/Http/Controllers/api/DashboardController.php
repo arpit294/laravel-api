@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\reply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DashboardRequest;
 use App\Models\Booking;
@@ -40,14 +41,13 @@ class DashboardController extends Controller
             })
             ->count();
 
-        return response()->json([
-            'status' => 'success',
+        return reply::successWith([
             'date' => $date,
             'total_seats' => Seat::count(),
             'total_bookings' => Booking::count(),
             'available_seats' => $availableAllDay,
             'cancelled_bookings' => Booking::where('status', 'cancelled')->count(),
             'slot_wise_availability' => $slotAvailability,
-        ]);
+        ], 'Dashboard data fetched successfully');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\reply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Http\Resources\StudentResource;
@@ -15,10 +16,7 @@ class StudentController extends Controller
     // List students
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'students' => Student::all(),
-        ]);
+        return reply::successWith(Student::all(), 'Students fetched successfully');
     }
 
     // Register a student
@@ -50,37 +48,23 @@ class StudentController extends Controller
                 ];
             });
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Student Registered Successfully',
-                'data' => new StudentResource($student),
-            ]);
+            return reply::successWith($student, 'Student Registered Successfully');
+
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to register student.',
-                'error' => $e->getMessage(),
-                'data' => null,
-            ]);
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to register student.');
         }
     }
 
-    // View single student
+    // View single studen
     public function show($id)
     {
         $student = Student::find($id);
 
         if (! $student) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Student not found',
-            ]);
+            return reply::errorWith(null, 'Student not found', 404);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => new StudentResource($student),
-        ]);
+        return reply::successWith(new StudentResource($student), 'Student fetched successfully');
     }
 
     // Update student
@@ -90,7 +74,7 @@ class StudentController extends Controller
             $student = Student::find($id);
 
             if (! $student) {
-                return response()->json(['status' => 'error', 'message' => 'Student not found'], 404);
+                return reply::errorWith(null, 'Student not found', 404);
             }
 
             $student->name = $request->name ?? $student->name;
@@ -99,17 +83,9 @@ class StudentController extends Controller
             $student->status = $request->has('status') ? (bool) $request->status : $student->status;
             $student->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Student Updated Successfully',
-                'data' => new StudentResource($student),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to update student.',
-                'data' => null,
-            ]);
+            return reply::successWith(new StudentResource($student), 'Student Updated Successfully');
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to update student.');
         }
     }
 
@@ -120,23 +96,15 @@ class StudentController extends Controller
             $student = Student::find($id);
 
             if (! $student) {
-                return response()->json(['status' => 'error', 'message' => 'Student not found'], 404);
+                return reply::errorWith(null, 'Student not found', 404);
             }
 
             $student->status = false;
             $student->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Student Deactivated Successfully',
-                'data' => new StudentResource($student),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to deactive student.',
-                'data' => null,
-            ]);
+            return reply::successWith(new StudentResource($student), 'Student Deactivated Successfully');
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to deactive student.');
         }
     }
 
@@ -146,23 +114,15 @@ class StudentController extends Controller
             $student = Student::find($id);
 
             if (! $student) {
-                return response()->json(['status' => 'error', 'message' => 'Student not found'], 404);
+                return reply::errorWith(null, 'Student not found', 404);
             }
 
             $student->status = true;
             $student->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Student activated Successfully',
-                'data' => new StudentResource($student),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to active student.',
-                'data' => null,
-            ]);
+            return reply::successWith(new StudentResource($student), 'Student activated Successfully');
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to active student.');
         }
     }
 
@@ -172,13 +132,12 @@ class StudentController extends Controller
         $student = Student::with('bookings.seat')->find($id);
 
         if (! $student) {
-            return response()->json(['status' => 'error', 'message' => 'Student not found'], 404);
+            return reply::errorWith(null, 'Student not found', 404);
         }
 
-        return response()->json([
-            'status' => 'success',
+        return reply::successWith([
             'student' => $student->name,
             'bookings' => $student->bookings,
-        ]);
+        ], 'Student booking history fetched successfully');
     }
 }

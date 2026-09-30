@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\reply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingRequest;
 use App\Http\Resources\BookingResource;
@@ -33,10 +34,7 @@ class BookingController extends Controller
         // 5. Get paginated results from $query
         $bookings = $query->latest()->paginate(10);
 
-        return response()->json([
-            'status' => 'success',
-            'bookings' => new BookingResource($bookings),
-        ]);
+        return reply::successWith(new BookingResource($bookings), 'Bookings fetched successfully');
     }
 
     public function store(BookingRequest $request)
@@ -45,22 +43,19 @@ class BookingController extends Controller
 
             // 1. Date cannot be in the past
             if (Carbon::parse($request->booking_date)->isPast() && ! Carbon::parse($request->booking_date)->isToday()) {
-                return response()->json(['status' => 'error',
-                    'message' => 'Cannot book for past dates']);
+                return reply::errorWith(null, 'Cannot book for past dates');
             }
 
             // 2. Student exists and is active
             $student = Student::find($request->student_id);
             if (! $student || ! $student->status) {
-                return response()->json(['status' => 'error',
-                    'message' => 'Student does not exist or is inactive']);
+                return reply::errorWith(null, 'Student does not exist or is inactive');
             }
 
             // 3. Seat exists and is active
             $seat = Seat::find($request->seat_id);
             if (! $seat || $seat->status !== 'active') {
-                return response()->json(['status' => 'error',
-                    'message' => 'Seat does not exist or is inactive']);
+                return reply::errorWith(null, 'Seat does not exist or is inactive');
             }
 
             // 4. Check if seat is already booked for this date and slot
@@ -71,10 +66,7 @@ class BookingController extends Controller
                 ->exists();
 
             if ($seatBooked) {
-                return response()->json([
-                    'status' => 'fail',
-                    'message' => 'Seat is already booked for this date and slot',
-                ], 409);
+                return reply::errorWith(null, 'Seat is already booked for this date and slot');
             }
 
             // 5. Check if student already has a booking for this date and slot
@@ -85,8 +77,7 @@ class BookingController extends Controller
                 ->exists();
 
             if ($studentBooked) {
-                return response()->json(['status' => 'error',
-                    'message' => 'Student already has a booking for this date and slot']);
+                return reply::errorWith(null, 'Student already has a booking for this date and slot');
             }
 
             return DB::transaction(function () use ($request) {
@@ -98,18 +89,10 @@ class BookingController extends Controller
                 $booking->status = 'confirmed';
                 $booking->save();
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Seat Booked Successfully',
-                    'data' => new BookingResource($booking),
-                ]);
+                return reply::successWith(new BookingResource($booking), 'Seat Booked Successfully');
             });
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to store booking.',
-                'data' => null,
-            ]);
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to store booking.');
         }
     }
 
@@ -120,23 +103,15 @@ class BookingController extends Controller
             $booking = Booking::find($id);
 
             if (! $booking) {
-                return response()->json(['status' => 'error', 'message' => 'Booking not found'], 404);
+                return reply::errorWith(null, 'Booking not found');
             }
 
             $booking->status = 'cancelled';
             $booking->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Booking cancelled successfully',
-                'data' => new BookingResource($booking),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to cancle booking.',
-                'data' => null,
-            ]);
+            return reply::successWith(new BookingResource($booking), 'Booking cancelled successfully');
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to cancle booking.');
         }
     }
 }

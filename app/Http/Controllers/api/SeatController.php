@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\reply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SeatRequest;
 use App\Http\Resources\SeatResource;
@@ -14,10 +15,7 @@ class SeatController extends Controller
     // 1. List all seats
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'seats' => Seat::all(),
-        ]);
+        return reply::successWith(Seat::all(), 'Seats fetched successfully');
     }
 
     // 2. Create a new seat
@@ -30,18 +28,9 @@ class SeatController extends Controller
             $seat->status = 'active';
             $seat->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Seat Created Successfully',
-                'data' => new SeatResource($seat),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create seat.',
-                'data' => null,
-            ]);
-
+            return reply::successWith(new SeatResource($seat), 'Seat Created Successfully');
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to create seat.');
         }
 
     }
@@ -52,16 +41,10 @@ class SeatController extends Controller
         $seat = Seat::find($id);
 
         if (! $seat) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Seat not found',
-            ]);
+            return reply::errorWith(null, 'Seat not found');
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => new SeatResource($seat),
-        ]);
+        return reply::successWith(new SeatResource($seat), 'Seat fetched successfully');
     }
 
     // 4. Activate / Deactivate a seat
@@ -71,26 +54,15 @@ class SeatController extends Controller
             $seat = Seat::find($id);
 
             if (! $seat) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Seat not found',
-                ], 404);
+                return reply::errorWith(null, 'Seat not found');
             }
 
             $seat->status = ($seat->status === 'active') ? 'inactive' : 'active';
             $seat->save();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => "Seat status updated to {$seat->status}",
-                'data' => new SeatResource($seat),
-            ]);
-        } catch (Exception) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to update seat.',
-                'data' => null,
-            ]);
+            return reply::successWith(new SeatResource($seat), "Seat status updated to {$seat->status}");
+        } catch (Exception $e) {
+            return reply::errorWith(['error' => $e->getMessage()], 'Failed to update seat.');
         }
     }
 
@@ -114,14 +86,13 @@ class SeatController extends Controller
             ->whereNotIn('id', $bookedSeatIds)
             ->get();
 
-        return response()->json([
-            'status' => 'success',
+        return reply::successWith([
             'date' => $date,
             'slot' => $slot,
             'total_seats' => $totalSeats,
             'booked_seats' => $bookedSeatIds->count(),
             'available_seats' => $availableSeatsList->count(),
             'available_seat_list' => $availableSeatsList,
-        ]);
+        ], 'Seat availability fetched successfully');
     }
 }
