@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Seat;
 use Exception;
@@ -68,25 +69,25 @@ class SeatController extends Controller
     // 4. Activate / Deactivate a seat
     public function toggleStatus($id)
     {
-        try{
-        $seat = Seat::find($id);
+        try {
+            $seat = Seat::find($id);
 
-        if (! $seat) {
+            if (! $seat) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Seat not found',
+                ], 404);
+            }
+
+            $seat->status = ($seat->status === 'active') ? 'inactive' : 'active';
+            $seat->save();
+
             return response()->json([
-                'status' => 'error',
-                'message' => 'Seat not found',
-            ], 404);
-        }
-
-        $seat->status = ($seat->status === 'active') ? 'inactive' : 'active';
-        $seat->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => "Seat status updated to {$seat->status}",
-            'data' => $seat,
-        ]);
-        } catch(Exception){
+                'status' => 'success',
+                'message' => "Seat status updated to {$seat->status}",
+                'data' => $seat,
+            ]);
+        } catch (Exception) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update seat.',

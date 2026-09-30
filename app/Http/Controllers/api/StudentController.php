@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -23,26 +26,45 @@ class StudentController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'mobile' => 'required|string|unique:students,mobile',
-                'email' => 'required|email|unique:students,email',
+                'mobile' => ['required', 'string', 'unique:students,mobile', 'unique:users,mobile'],
+                'email' => ['required', 'email', 'unique:students,email', 'unique:users,email'],
+                'password' => ['nullable', 'string', 'min:6'],
             ]);
 
-            $student = new Student;
-            $student->name = $request->name;
-            $student->mobile = $request->mobile;
-            $student->email = $request->email;
-            $student->status = 'active';
-            $student->save();
+            $student = DB::transaction(function () use ($request) {
+                $student = Student::create([
+                    'name' => $request->name,
+                    'mobile' => $request->mobile,
+                    'email' => $request->email,
+                    'status' => 'active',
+                ]);
+
+                $user = User::updateOrCreate(
+                    ['email' => $request->email],
+                    [
+                        'name' => $request->name,
+                        'mobile' => $request->mobile,
+                        'status' => 'active',
+                        'password' => bcrypt($request->password ?? 'Student@123'),
+                    ]
+                );
+
+                return [
+                    'student' => $student,
+                    'user' => $user,
+                ];
+            });
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student Registered Successfully',
                 'data' => $student,
-            ], 201);
-        } catch (Exception) {
+            ]);
+        } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to register student.',
+                'error' => $e->getMessage(),
                 'data' => null,
             ]);
         }
@@ -57,7 +79,7 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Student not found',
-            ], 404);
+            ]);
         }
 
         return response()->json([

@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SeatController;
-use App\Http\Controllers\StudentController;
+use App\Http\Controllers\api\BookingController;
+use App\Http\Controllers\api\DashboardController;
+use App\Http\Controllers\api\SeatController;
+use App\Http\Controllers\api\StudentController;
 use Illuminate\Support\Facades\Route;
 
 // Student Routes
